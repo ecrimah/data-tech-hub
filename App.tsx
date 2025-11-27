@@ -3,7 +3,7 @@ import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import { Shop } from './pages/Shop';
 import { Wallet } from './pages/Wallet';
-import { Admin } from './pages/Admin';
+import Admin from './pages/Admin';
 import { Referrals } from './pages/Referrals';
 import { Checkout } from './pages/Checkout';
 import { Login } from './pages/Login';
