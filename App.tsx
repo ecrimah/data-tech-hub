@@ -7,6 +7,7 @@ import Admin from './pages/Admin';
 import { Referrals } from './pages/Referrals';
 import { Checkout } from './pages/Checkout';
 import { Login } from './pages/Login';
+import { PaymentPending } from './pages/PaymentPending';
 import { SupportChat } from './components/SupportChat';
 import { getSession } from './services/supabaseDatabase';
 import { User } from './types';
@@ -62,6 +63,7 @@ function App() {
           <Route path="/referrals" element={<Referrals user={user} />} />
           <Route path="/admin" element={<Admin user={user} />} />
           <Route path="/checkout" element={<Checkout user={user} />} />
+          <Route path="/payment-pending" element={<PaymentPending />} />
           <Route path="/login" element={<Login setUser={setUser} />} />
           <Route path="/success" element={<SuccessPage />} />
           <Route path="*" element={<Navigate to="/" />} />

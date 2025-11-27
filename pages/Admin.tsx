@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { getOrders, fulfillOrder, getPricePerGb, updatePricePerGb, getReferralsEnabled, setReferralsEnabled } from '../services/supabaseDatabase';
+import { User } from '../types';
 
-const Admin: React.FC = () => {
+interface AdminProps {
+  user: User | null;
+}
+
+const Admin: React.FC<AdminProps> = () => {
   const [orders, setOrders] = useState<any[]>([]);
   const [pricePerGb, setPricePerGb] = useState<number>(0);
   const [referralsEnabled, setReferralsEnabledState] = useState<boolean>(false);

@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Bundle, Network, User } from '../types';
 import { createOrder } from '../services/supabaseDatabase';
 import { Loader2, Smartphone, CreditCard, Wallet, AlertCircle } from 'lucide-react';
+import PaystackPop from '@paystack/inline-js';
 
 interface CheckoutProps {
   user: User | null;
@@ -26,7 +27,7 @@ export const Checkout: React.FC<CheckoutProps> = ({ user }) => {
 
   const handlePayment = async () => {
     setError('');
-    
+
     if (!phone || phone.length < 10) {
       setError('Please enter a valid Ghana phone number.');
       return;
@@ -40,22 +41,49 @@ export const Checkout: React.FC<CheckoutProps> = ({ user }) => {
     setLoading(true);
 
     try {
-      // If user is guest, create a temporary user object for the function
       const orderUser = user || { id: 'guest', email: 'guest@example.com', name: 'Guest', role: 'user', wallet_balance: 0, referral_code: '', created_at: '' } as User;
-      
-      await createOrder(orderUser, network, bundle.size, phone, paymentMethod);
-      
-      // Simulate Success
-      navigate('/success', { 
-        state: { 
-          order: { 
-            network, 
-            bundle_size: `${bundle.size} GB`, 
-            amount: bundle.price, 
-            phone 
-          } 
-        } 
-      });
+
+      if (paymentMethod === 'paystack') {
+        // Initialize Paystack payment
+        const paystack = new PaystackPop();
+        paystack.newTransaction({
+          key: (import.meta as any).env.VITE_PAYSTACK_PUBLIC_KEY,
+          email: orderUser.email,
+          amount: bundle.price * 100, // Paystack expects amount in kobo (multiply by 100)
+          currency: 'GHS',
+          reference: `DTH-${Date.now()}`,
+          onSuccess: async () => {
+            // Payment successful, create order
+            await createOrder(orderUser, network, bundle.size, phone, paymentMethod);
+            navigate('/success', {
+              state: {
+                order: {
+                  network,
+                  bundle_size: `${bundle.size} GB`,
+                  amount: bundle.price,
+                  phone
+                }
+              }
+            });
+          },
+          onCancel: () => {
+            setError('Payment was cancelled.');
+          }
+        });
+      } else {
+        // Wallet payment
+        await createOrder(orderUser, network, bundle.size, phone, paymentMethod);
+        navigate('/success', {
+          state: {
+            order: {
+              network,
+              bundle_size: `${bundle.size} GB`,
+              amount: bundle.price,
+              phone
+            }
+          }
+        });
+      }
     } catch (err: any) {
       setError(err.message || 'Payment failed. Please try again.');
     } finally {

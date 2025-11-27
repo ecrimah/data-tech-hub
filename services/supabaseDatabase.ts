@@ -159,12 +159,13 @@ export const createOrder = async (
   network: Network,
   size: number,
   phone: string,
-  paymentMethod: 'wallet' | 'paystack'
+  paymentMethod: 'wallet' | 'paystack',
+  paymentStatus: PaymentStatus = PaymentStatus.PAID
 ): Promise<Order> => {
   const currentPrice = await getPricePerGb();
   const amount = size * currentPrice;
 
-  // If wallet payment, check balance
+  // If wallet payment, check balance and complete immediately
   if (paymentMethod === 'wallet') {
     const balance = await getUserWallet(user.id);
     if (balance < amount) {
@@ -194,6 +195,7 @@ export const createOrder = async (
   }
 
   // Create order
+  const paymentRef = paymentMethod === 'paystack' ? `PAY-${Date.now()}` : `ORD-${Date.now()}`;
   const { data: order, error: orderError } = await supabase
     .from('orders')
     .insert({
@@ -202,8 +204,8 @@ export const createOrder = async (
       bundle_size: `${size} GB`,
       amount,
       phone,
-      payment_ref: `PAY-${Date.now()}`,
-      payment_status: PaymentStatus.PAID,
+      payment_ref: paymentRef,
+      payment_status: paymentStatus,
       delivery_status: DeliveryStatus.PENDING,
       payment_method: paymentMethod
     })
@@ -213,6 +215,55 @@ export const createOrder = async (
   if (orderError) throw orderError;
 
   return order;
+};
+
+export const verifyAndCompletePayment = async (reference: string): Promise<Order | null> => {
+  // Find order by payment reference
+  const { data: order, error: findError } = await supabase
+    .from('orders')
+    .select('*')
+    .eq('payment_ref', reference)
+    .single();
+
+  if (findError || !order) {
+    console.error('Order not found for reference:', reference);
+    return null;
+  }
+
+  if (order.payment_status === PaymentStatus.PAID) {
+    console.log('Payment already verified for reference:', reference);
+    return order;
+  }
+
+  // Update order status to paid
+  const { data: updatedOrder, error: updateError } = await supabase
+    .from('orders')
+    .update({ payment_status: PaymentStatus.PAID })
+    .eq('id', order.id)
+    .select()
+    .single();
+
+  if (updateError) {
+    console.error('Failed to update order status:', updateError);
+    return null;
+  }
+
+  // Log transaction
+  const { error: txError } = await supabase
+    .from('transactions')
+    .insert({
+      user_id: order.user_id,
+      type: 'purchase',
+      amount: -order.amount,
+      status: 'completed',
+      reference: `TXN-${Date.now()}`
+    });
+
+  if (txError) {
+    console.error('Failed to log transaction:', txError);
+  }
+
+  return updatedOrder;
 };
 
 export const getOrders = async (userId?: string): Promise<Order[]> => {
@@ -272,4 +323,15 @@ export const getTransactions = async (userId: string): Promise<Transaction[]> =>
 
   if (error) throw error;
   return data || [];
+};
+
+export const getOrderStatus = async (orderId: string): Promise<Order | null> => {
+  const { data, error } = await supabase
+    .from('orders')
+    .select('*')
+    .eq('id', orderId)
+    .single();
+
+  if (error) return null;
+  return data;
 };
