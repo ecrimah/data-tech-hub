@@ -8,7 +8,7 @@ import { Referrals } from './pages/Referrals';
 import { Checkout } from './pages/Checkout';
 import { Login } from './pages/Login';
 import { SupportChat } from './components/SupportChat';
-import { getSession } from './services/mockDatabase';
+import { getSession } from './services/supabaseDatabase';
 import { User } from './types';
 import { CheckCircle } from 'lucide-react';
 

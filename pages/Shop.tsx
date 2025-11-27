@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Network, Bundle, User } from '../types';
 import { BUNDLE_SIZES, AVAILABLE_NETWORKS, PROMOTIONS, PRICE_PER_GB } from '../constants';
-import { getPricePerGb } from '../services/mockDatabase';
+import { getPricePerGb } from '../services/supabaseDatabase';
 import { Zap, Lock, Loader2, ArrowRight, MessageCircle } from 'lucide-react';
 
 interface ShopProps {

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, Transaction } from '../types';
-import { getTransactions, topUpWallet } from '../services/mockDatabase';
+import { getTransactions, topUpWallet } from '../services/supabaseDatabase';
 import { Plus, ArrowUpRight, ArrowDownLeft, RefreshCcw, CreditCard, Wifi } from 'lucide-react';
 
 interface WalletProps {

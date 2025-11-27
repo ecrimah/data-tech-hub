@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { User } from '../types';
 import { Copy, Gift, Users, Lock, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { getReferralsEnabled } from '../services/mockDatabase';
+import { getReferralsEnabled } from '../services/supabaseDatabase';
 
 interface ReferralProps {
   user: User | null;

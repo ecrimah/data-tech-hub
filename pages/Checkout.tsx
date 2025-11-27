@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Bundle, Network, User } from '../types';
-import { createOrder } from '../services/mockDatabase';
+import { createOrder } from '../services/supabaseDatabase';
 import { Loader2, Smartphone, CreditCard, Wallet, AlertCircle } from 'lucide-react';
 
 interface CheckoutProps {

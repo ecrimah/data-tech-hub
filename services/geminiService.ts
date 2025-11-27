@@ -1,5 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
-import { getPricePerGb } from "./mockDatabase";
+import { getPricePerGb } from "./supabaseDatabase";
 
 export const generateSupportResponse = async (query: string): Promise<string> => {
   // Safe access for both Vite build and Browser Preview

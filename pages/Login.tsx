@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { signIn, signUp } from '../services/mockDatabase';
+import { signIn, signUp } from '../services/supabaseDatabase';
 import { User } from '../types';
 import { Loader2, ArrowRight, ShieldCheck, Zap } from 'lucide-react';
 
